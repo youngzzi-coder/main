@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>EXITANT AI · 시뮬레이터</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#000; --panel:#0a1610; --panel2:#0d1d14; --line:#1a3326; --line2:#26402f;
+  --neon:#00ff9d; --neon-dim:#0ac77a; --neon-deep:#063d28;
+  --ink:#e8fff5; --muted:#5f8a76; --muted2:#3d5f50; --gold:#d4af37; --y:#ffd23f;
+  --mono:'SF Mono',ui-monospace,'Cascadia Code',Menlo,monospace;
+  --sans:-apple-system,BlinkMacSystemFont,'Segoe UI','Pretendard',sans-serif;
+  --display:'Space Grotesk','Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.55;
+  -webkit-font-smoothing:antialiased;min-height:100vh;overflow-x:hidden;
+  background-image:
+    radial-gradient(ellipse 80% 50% at 50% 100%, rgba(0,255,157,.16), transparent 70%),
+    radial-gradient(ellipse 60% 40% at 80% -5%, rgba(0,255,157,.07), transparent 60%),
+    linear-gradient(180deg,#000 0%, #03100a 55%, #051c12 100%);
+  background-attachment:fixed;
+}
+.wrap{max-width:1080px;margin:0 auto;padding:0 22px}
+
+/* nav */
+header{padding:28px 0 0}
+.nav{display:flex;align-items:center;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:11px;font-family:var(--mono);font-weight:800;
+  font-size:17px;letter-spacing:.04em}
+.brand .mark{width:34px;height:34px;border-radius:8px;display:grid;place-items:center;
+  background:linear-gradient(165deg,var(--panel2),var(--panel));
+  border:1px solid rgba(0,255,157,.18);box-shadow:0 0 16px rgba(0,255,157,.22)}
+.brand .mark svg{width:20px;height:20px;color:var(--neon);
+  filter:drop-shadow(0 0 6px rgba(0,255,157,.5))}
+.brand .ai{color:var(--neon)}
+.nav-tag{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.16em;text-transform:uppercase}
+
+/* back link */
+.back{margin-top:26px;display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--mono);font-size:12px;color:var(--muted);text-decoration:none;
+  letter-spacing:.04em;transition:color .2s ease}
+.back:hover{color:var(--neon)}
+.back .ar{transition:transform .2s ease}
+.back:hover .ar{transform:translateX(-3px)}
+
+/* hero */
+.hero{text-align:center;padding:30px 0 36px}
+.eyebrow{font-family:var(--mono);font-size:11.5px;letter-spacing:.34em;text-transform:uppercase;
+  color:var(--neon);text-shadow:0 0 14px rgba(0,255,157,.4);margin-bottom:18px}
+.hero h1{font-family:var(--display);font-weight:700;font-size:clamp(34px,6vw,62px);letter-spacing:-1.5px;
+  line-height:1.06;margin-bottom:18px}
+.hero h1 .dim{color:var(--muted)}
+.hero h1 .g{color:var(--neon);text-shadow:0 0 18px rgba(0,255,157,.35)}
+.hero h1 .y{color:var(--y)}
+.hero p{max-width:560px;margin:0 auto;color:var(--muted);font-size:15px;line-height:1.7}
+.rule{display:flex;align-items:center;gap:14px;max-width:560px;margin:32px auto 0;
+  color:var(--muted2);font-family:var(--mono);font-size:10.5px;letter-spacing:.22em;text-transform:uppercase}
+.rule:before,.rule:after{content:"";flex:1;height:1px;
+  background:linear-gradient(90deg,transparent,rgba(0,255,157,.28),transparent)}
+
+/* cards */
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;padding:36px 0 18px}
+.card{position:relative;display:flex;flex-direction:column;text-decoration:none;color:inherit;
+  background:linear-gradient(165deg,var(--panel2),var(--panel));
+  border:1px solid var(--line);border-radius:18px;padding:26px 24px 22px;overflow:hidden;
+  transition:transform .22s ease,border-color .22s ease,box-shadow .22s ease}
+.card:before{content:"";position:absolute;inset:0;border-radius:18px;pointer-events:none;
+  background:radial-gradient(420px 200px at 85% -20%,rgba(0,255,157,.10),transparent 60%);
+  opacity:0;transition:opacity .22s ease}
+.card:hover{transform:translateY(-5px);border-color:rgba(0,255,157,.45);
+  box-shadow:0 16px 44px rgba(0,0,0,.5),0 0 26px rgba(0,255,157,.10)}
+.card:hover:before{opacity:1}
+.card:focus-visible{outline:2px solid var(--neon);outline-offset:3px}
+
+.c-top{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px}
+.c-idx{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--muted);letter-spacing:.1em}
+.glyph{width:46px;height:46px;flex-shrink:0;color:var(--neon);
+  filter:drop-shadow(0 0 10px rgba(0,255,157,.35))}
+.card:hover .glyph{animation:spin 9s linear infinite}
+.glyph.cyc{animation:spin 14s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+.c-tag{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;
+  color:var(--neon-dim);margin-bottom:9px}
+.c-name{font-family:var(--display);font-weight:700;font-size:21px;letter-spacing:-.5px;line-height:1.15;margin-bottom:5px}
+.c-ko{font-size:13.5px;color:var(--muted);margin-bottom:15px}
+.c-desc{font-size:13.5px;color:#9bc0ad;line-height:1.65;margin-bottom:22px;min-height:44px}
+.c-cta{margin-top:auto;display:inline-flex;align-items:center;gap:8px;
+  font-family:var(--mono);font-size:13px;font-weight:700;color:var(--neon);letter-spacing:.02em}
+.c-cta .arr{transition:transform .22s ease}
+.card:hover .c-cta .arr{transform:translateX(5px)}
+
+/* footer */
+footer{text-align:center;padding:46px 0 60px;color:var(--muted2);
+  font-family:var(--mono);font-size:11px;letter-spacing:.1em}
+footer .dot{color:var(--neon-deep)}
+
+@media(max-width:680px){
+  .grid{grid-template-columns:1fr;gap:16px}
+  .hero{padding:24px 0 26px}
+  .c-desc{min-height:0}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <nav class="nav">
+      <div class="brand">
+        <span class="mark">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M6 5.5A1.5 1.5 0 0 1 7.5 4H17a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1H7.5A1.5 1.5 0 0 1 6 18.5z"/>
+            <path d="M6 17.5A1.5 1.5 0 0 1 7.5 16H18"/>
+            <path d="M9 8h6M9 11h6"/>
+          </svg>
+        </span>
+        ExitAnt <span class="ai">AI</span>
+      </div>
+      <div class="nav-tag">Simulator</div>
+    </nav>
+
+    <a class="back" href="main.html"><span class="ar">&lsaquo;</span> 메인으로</a>
+  </header>
+
+  <section class="hero">
+    <div class="eyebrow">Strategy Simulator</div>
+    <h1><span class="g">시뮬레이터</span><br><span class="dim">SELECT STRATEGY</span></h1>
+    <p>구동할 전략을 선택하세요. 실시간 시세에 전략을 적용해 진입·청산 신호와 손익을 모의로 돌려볼 수 있습니다.</p>
+    <div class="rule">Choose a strategy</div>
+  </section>
+
+  <main class="grid">
+
+    <a class="card" href="turtlesimul.html">
+      <div class="c-top">
+        <span class="c-idx">01</span>
+        <svg class="glyph" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M24 24 m0 0 a3 3 0 1 1 -3 -3 a6 6 0 1 1 6 6 a9 9 0 1 1 -9 -9 a12 12 0 1 1 12 12 a15 15 0 1 1 -15 -15"/>
+        </svg>
+      </div>
+      <div class="c-tag">Compounding · Pyramiding</div>
+      <div class="c-name">Infinite Compound Turtle</div>
+      <div class="c-ko">무한 복리 터틀</div>
+      <div class="c-desc">고점 추세에 분할 재투입하며 복리로 불려가는 터틀 전략. 실시간 시세로 시뮬레이터를 구동해 확인.</div>
+      <span class="c-cta">시뮬레이터 구동 <span class="arr">&rsaquo;</span></span>
+    </a>
+
+    <a class="card" href="infinitesimul.html">
+      <div class="c-top">
+        <span class="c-idx">02</span>
+        <svg class="glyph cyc" viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M38 16 A16 16 0 1 0 40 28"/>
+          <path d="M40 14 L38 22 L31 18"/>
+        </svg>
+      </div>
+      <div class="c-tag">Split Buy · Cycle</div>
+      <div class="c-name">Infinite Cycle System</div>
+      <div class="c-ko">무한 순환 시스템</div>
+      <div class="c-desc">분할매수로 평단을 낮추고 목표가에 청산 후 순환하는 무한매수법. 실시간 시세로 시뮬레이터를 구동해 확인.</div>
+      <span class="c-cta">시뮬레이터 구동 <span class="arr">&rsaquo;</span></span>
+    </a>
+
+  </main>
+
+  <footer>ExitAnt AI <span class="dot">&bull;</span> Strategy Simulator <span class="dot">&bull;</span> 과거 성과는 미래 수익을 보장하지 않습니다</footer>
+
+</div>
+</body>
+</html>
